@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treaty Submission App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.9/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    function App() {
+      const [query, setQuery] = React.useState('');
+      const [response, setResponse] = React.useState(null);
+      const [error, setError] = React.useState(null);
+      const [loading, setLoading] = React.useState(false);
+
+      // Function to extract image paths from the response text
+      const extractImagePaths = (text) => {
+        const regex = /<img src="([^"]+)" alt="[^"]*">/g;
+        const matches = [];
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+          matches.push(match[1]);
+        }
+        return matches;
+      };
+
+      // Function to replace image tags with a placeholder for display
+      const renderTextWithImages = (text, imagePaths) => {
+        let renderedText = text.replace(/<img src="[^"]+" alt="[^"]*">/g, '[Image]');
+        return renderedText.split('\n').map((line, index) => (
+          <p key={index} className="mb-2">{line}</p>
+        ));
+      };
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        setResponse(null);
+
+        try {
+          const res = await axios.post('http://localhost:8000/api/v1/query', {
+            query,
+            return_scores: false
+          }, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          });
+          setResponse(res.data);
+        } catch (err) {
+          setError('Failed to fetch data. Please check the API endpoint or try again.');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
+          <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+            <h1 className="text-2xl font-bold mb-4 text-center">Treaty Submission Query</h1>
+            <form onSubmit={handleSubmit} className="mb-6">
+              <div className="flex flex-col space-y-4">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Enter your query (e.g., How to submit treaty)"
+                  className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-blue-500 text-white rounded-lg p-2 hover:bg-blue-600 disabled:bg-blue-300"
+                >
+                  {loading ? 'Submitting...' : 'Submit Query'}
+                </button>
+              </div>
+            </form>
+
+            {error && (
+              <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-4">
+                {error}
+              </div>
+            )}
+
+            {response && response.results && response.results.length > 0 && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h2 className="text-xl font-semibold mb-2">Response</h2>
+                {response.results.map((result, index) => {
+                  const imagePaths = extractImagePaths(result);
+                  return (
+                    <div key={index} className="mb-4">
+                      <div className="text-gray-800">
+                        {renderTextWithImages(result, imagePaths)}
+                      </div>
+                      {imagePaths.length > 0 && (
+                        <div className="mt-4">
+                          <h3 className="text-lg font-semibold mb-2">Images</h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {imagePaths.map((path, idx) => (
+                              <img
+                                key={idx}
+                                src={path}
+                                alt={`Image ${idx + 1}`}
+                                className="w-full h-auto rounded-lg shadow-md"
+                                onError={(e) => {
+                                  e.target.src = 'https://via.placeholder.com/150?text=Image+Not+Found';
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                <p className="text-sm text-gray-600 mt-2">
+                  Total Results: {response.total_results}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
