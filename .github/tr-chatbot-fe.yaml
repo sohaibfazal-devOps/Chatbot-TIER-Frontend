@@ -1,0 +1,48 @@
+name: Deploy React Frontend (Dev)
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build React app
+      run: npm run build
+
+    - name: Upload build to /home/ubuntu/build
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "build/*"
+        target: "/home/ubuntu/build"
+        strip_components: 1
+
+    - name: Move to /var/www/build and reload nginx
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          sudo rm -rf /var/www/build
+          sudo mkdir -p /var/www/build
+          sudo mv /home/ubuntu/build/* /var/www/build/
+          sudo chown -R ubuntu:ubuntu /var/www/build
+          sudo systemctl reload nginx

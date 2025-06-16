@@ -44,7 +44,7 @@ export function ChatProvider({ children }) {
     dispatch({ type: 'CLEAR_ERROR' });
 
     try {
-      const response = await axios.post('http://localhost:8000/api/v1/query', {
+      const response = await axios.post('https://tr-chatbot-api.icod.ai/api/v1/query', {
         query: message,
         return_scores: true
       }, {
