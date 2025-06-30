@@ -2,86 +2,91 @@ import React from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 function MessageBubble({ role, content, source, isError }) {
-  const formatMessage = (content) => {
-    if (!content) return '';
-    
-    try {
-      return content.split('\n').map((line, i) => {
-        // Check if line contains an image
-        const imgMatch = line.match(/<img src="([^"]+)" alt="([^"]*)"\s*\/?>/);
-        if (imgMatch) {
-          return (
-            <div key={i} className="my-4">
-              <img
-                src={imgMatch[1]}
-                alt={imgMatch[2]}
-                className="max-w-full h-auto rounded-lg shadow-md mx-auto"
-                style={{ 
-                  maxHeight: '300px',
-                  maxWidth: '400px',
-                  opacity: '0.8',
-                  transition: 'opacity 0.3s ease'
-                }}
-                onError={(e) => {
-                  console.error('Image failed to load:', imgMatch[1]);
-                  e.target.src = 'https://via.placeholder.com/150?text=Image+Not+Found';
-                }}
-                onLoad={(e) => {
-                  e.target.style.opacity = '1';
-                }}
-              />
-            </div>
-          );
-        }
-        
-        // Check if line is a heading
-        if (line.startsWith('#')) {
-          const level = line.match(/^#+/)[0].length;
-          const text = line.replace(/^#+\s*/, '');
-          const Tag = `h${Math.min(level, 6)}`;
-          return <Tag key={i} className="font-bold my-2">{text}</Tag>;
-        }
-        
-        // Check if line is a list item
-        if (line.match(/^\d+\.\s/)) {
-          // Process bold text within list items
-          const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
-          return (
-            <p key={i} className="mb-2 pl-4">
-              {parts.map((part, j) => {
-                if (part.startsWith('**') && part.endsWith('**')) {
-                  return <strong key={j}>{part.slice(2, -2)}</strong>;
-                }
-                if (part.startsWith('*') && part.endsWith('*')) {
-                  return <strong key={j}>{part.slice(1, -1)}</strong>;
-                }
-                return part;
-              })}
-            </p>
-          );
-        }
+  const formatMessage = (text) => {
+    if (!text) return '';
 
-        // Check if line contains bold text (text between ** or *)
-        if (line.includes('**') || line.includes('*')) {
-          const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
-          return (
-            <p key={i} className="mb-2">
-              {parts.map((part, j) => {
-                if (part.startsWith('**') && part.endsWith('**')) {
-                  return <strong key={j}>{part.slice(2, -2)}</strong>;
-                }
-                if (part.startsWith('*') && part.endsWith('*')) {
-                  return <strong key={j}>{part.slice(1, -1)}</strong>;
-                }
-                return part;
-              })}
-            </p>
-          );
-        }
-        
-        // Regular text line
-        return <p key={i} className="mb-2">{line}</p>;
+    try {
+      const lines = text.split('\n');
+      const elements = [];
+
+      lines.forEach((line, i) => {
+        // Remove brackets around image tags
+        const cleanedLine = line.replace(/\[(<img .*?>)\]/g, '$1');
+
+        const parts = cleanedLine.split(/(<img .*?>)/g);
+
+        parts.forEach((part, j) => {
+          if (part.startsWith('<img')) {
+            const imgMatch = part.match(/<img src="([^"]+)" alt="([^"]*)"\s*\/?>/);
+            if (imgMatch) {
+              elements.push(
+                <div key={`${i}-${j}`} className="my-4">
+                  <img
+                    src={imgMatch[1]}
+                    alt={imgMatch[2]}
+                    className="max-w-full h-auto rounded-lg shadow-md mx-auto"
+                    style={{
+                      maxHeight: '300px',
+                      maxWidth: '400px',
+                      opacity: '0.8',
+                      transition: 'opacity 0.3s ease'
+                    }}
+                    onError={(e) => {
+                      console.error('Image failed to load:', imgMatch[1]);
+                      e.target.src = 'https://via.placeholder.com/150?text=Image+Not+Found';
+                    }}
+                    onLoad={(e) => {
+                      e.target.style.opacity = '1';
+                    }}
+                  />
+                </div>
+              );
+            }
+          } else if (part) {
+            // Process text part
+            if (part.startsWith('#')) {
+              const level = part.match(/^#+/)[0].length;
+              const text = part.replace(/^#+\s*/, '');
+              const Tag = `h${Math.min(level, 6)}`;
+              elements.push(<Tag key={`${i}-${j}`} className="font-bold my-2">{text}</Tag>);
+            } else if (part.match(/^\d+\.\s/)) {
+              const textParts = part.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+              elements.push(
+                <p key={`${i}-${j}`} className="mb-2 pl-4">
+                  {textParts.map((p, k) => {
+                    if (p.startsWith('**') && p.endsWith('**')) {
+                      return <strong key={k}>{p.slice(2, -2)}</strong>;
+                    }
+                    if (p.startsWith('*') && p.endsWith('*')) {
+                      return <strong key={k}>{p.slice(1, -1)}</strong>;
+                    }
+                    return p;
+                  })}
+                </p>
+              );
+            } else if (part.includes('**') || part.includes('*')) {
+              const textParts = part.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+              elements.push(
+                <p key={`${i}-${j}`} className="mb-2">
+                  {textParts.map((p, k) => {
+                    if (p.startsWith('**') && p.endsWith('**')) {
+                      return <strong key={k}>{p.slice(2, -2)}</strong>;
+                    }
+                    if (p.startsWith('*') && p.endsWith('*')) {
+                      return <strong key={k}>{p.slice(1, -1)}</strong>;
+                    }
+                    return p;
+                  })}
+                </p>
+              );
+            } else {
+              elements.push(<p key={`${i}-${j}`} className="mb-2">{part}</p>);
+            }
+          }
+        });
       });
+
+      return elements;
     } catch (error) {
       console.error('Error formatting message:', error);
       return <p className="text-red-500">Error formatting message. Please try again.</p>;
