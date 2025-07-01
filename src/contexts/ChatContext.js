@@ -51,8 +51,7 @@ export function ChatProvider({ children }) {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
-        },
-        timeout: 600000
+        }
       });
 
       if (response.data && response.data.answer) {
