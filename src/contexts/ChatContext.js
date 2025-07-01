@@ -52,7 +52,7 @@ export function ChatProvider({ children }) {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        timeout: 30000
+        timeout: 600000
       });
 
       if (response.data && response.data.answer) {
