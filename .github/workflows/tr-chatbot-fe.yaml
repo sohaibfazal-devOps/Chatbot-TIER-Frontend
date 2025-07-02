@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ec2-user-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
@@ -24,14 +24,14 @@ jobs:
     - name: Build React app
       run: npm run build
 
-    - name: Upload build to /home/ec2-user/build
+    - name: Upload build to /home/ubuntu/build
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         source: "build/*"
-        target: "/home/ec2-user/build"
+        target: "/home/ubuntu/build"
         strip_components: 1
 
     - name: Move to /var/www/build and reload nginx
@@ -43,6 +43,6 @@ jobs:
         script: |
           sudo rm -rf /var/www/build
           sudo mkdir -p /var/www/build
-          sudo mv /home/ec2-user/build/* /var/www/build/
-          sudo chown -R ec2-user:ec2-user /var/www/build
+          sudo mv /home/ubuntu/build/* /var/www/build/
+          sudo chown -R ubuntu:ubuntu /var/www/build
           sudo systemctl reload nginx
