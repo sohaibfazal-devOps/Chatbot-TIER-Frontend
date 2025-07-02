@@ -24,19 +24,19 @@ jobs:
       - name: Build React app
         run: npm run build
 
-      - name: Upload build to /home/ec2-user/build
+      - name: Upload build to /home/ec2-user/tr-chatbot-build
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ec2-user
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "build/**"
-          target: "/home/ec2-user/build"
+          target: "/home/ec2-user/tr-chatbot-build"
           strip_components: 1
           timeout: 30s
           command_timeout: 10m
 
-      - name: Move to /var/www/build and reload nginx
+      - name: Move to /var/www/Chatbot-TIER/frontend and reload nginx
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -44,8 +44,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           timeout: 30s
           script: |
-            sudo rm -rf /var/www/build
-            sudo mkdir -p /var/www/build
-            sudo mv /home/ec2-user/build/* /var/www/build/
-            sudo chown -R ec2-user:ec2-user /var/www/build
+            sudo rm -rf /var/www/Chatbot-TIER/frontend
+            sudo mkdir -p /var/www/Chatbot-TIER/frontend
+            sudo mv /home/ec2-user/tr-chatbot-build/* /var/www/Chatbot-TIER/frontend/
+            sudo chown -R ec2-user:ec2-user /var/www/Chatbot-TIER/frontend
             sudo systemctl reload nginx
