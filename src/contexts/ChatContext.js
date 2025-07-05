@@ -7,6 +7,13 @@ const initialState = {
   messages: [],
   isLoading: false,
   error: null,
+  activeExpert: 'treaty', // 'treaty' or 'claims'
+};
+
+// Define endpoints for different experts
+const EXPERT_ENDPOINTS = {
+  treaty: 'https://tr-chatbot-api.icod.ai/api/v1/query', // Treaty Submission Expert
+  claims: 'https://tr-chatbot-api.icod.ai/api/v1/chatbot-v4', // Claims Expert (you can change this endpoint)
 };
 
 function chatReducer(state, action) {
@@ -31,6 +38,13 @@ function chatReducer(state, action) {
         ...state,
         error: null,
       };
+    case 'SET_ACTIVE_EXPERT':
+      return {
+        ...state,
+        activeExpert: action.payload,
+        messages: [], // Clear messages when switching experts
+        error: null,
+      };
     default:
       return state;
   }
@@ -44,7 +58,8 @@ export function ChatProvider({ children }) {
     dispatch({ type: 'CLEAR_ERROR' });
 
     try {
-      const response = await axios.post('https://tr-chatbot-api.icod.ai/api/v1/query', {
+      const endpoint = EXPERT_ENDPOINTS[state.activeExpert];
+      const response = await axios.post(endpoint, {
         query: message,
         return_scores: true
       }, {
@@ -84,7 +99,7 @@ export function ChatProvider({ children }) {
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, []);
+  }, [state.activeExpert]);
 
   const addUserMessage = useCallback((message) => {
     dispatch({
@@ -96,10 +111,15 @@ export function ChatProvider({ children }) {
     });
   }, []);
 
+  const setActiveExpert = useCallback((expert) => {
+    dispatch({ type: 'SET_ACTIVE_EXPERT', payload: expert });
+  }, []);
+
   const value = {
     ...state,
     sendMessage,
     addUserMessage,
+    setActiveExpert,
   };
 
   return (
