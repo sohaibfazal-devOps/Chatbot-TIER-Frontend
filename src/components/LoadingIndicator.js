@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 function LoadingIndicator() {
   const [currentStage, setCurrentStage] = useState(0);
   
-  const stages = [
+  const stages = useMemo(() => [
     { message: "Analyzing query", delay: 0 },
     { message: "Checking intent", delay: 3000 }, // 3 seconds
     { message: "Fetching database", delay: 9000 }, // 9 seconds
-  ];
+  ], []);
 
   useEffect(() => {
     const timers = stages.map((stage, index) => {
