@@ -31,7 +31,7 @@ function Chat() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-white rounded-lg shadow-lg">
+    <div className="flex flex-col h-[calc(100vh-6rem)] bg-white rounded-lg shadow-lg">
       {/* Expert Tabs */}
       <div className="flex border-b border-gray-200 bg-gray-50">
         <button
@@ -61,7 +61,7 @@ function Chat() {
         ref={chatContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-4"
         style={{ 
-          maxHeight: 'calc(100vh - 8rem)',
+          maxHeight: 'calc(100vh - 10rem)',
           scrollBehavior: 'smooth'
         }}
       >
