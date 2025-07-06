@@ -21,7 +21,7 @@ function LoadingIndicator() {
     return () => {
       timers.forEach(timer => timer && clearTimeout(timer));
     };
-  }, []);
+  }, [stages]);
 
   return (
     <div className="flex justify-start">
