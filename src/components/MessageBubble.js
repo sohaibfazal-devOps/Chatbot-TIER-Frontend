@@ -36,7 +36,7 @@ function MessageBubble({ role, content, source, isError }) {
                     onClick={() => setPreviewSrc(imgMatch[1])}
                     onError={(e) => {
                       console.error('Image failed to load:', imgMatch[1]);
-                      e.target.src = 'https://via.placeholder.com/150?text=Image+Not+Found';
+                      // e.target.src = 'https://via.placeholder.com/150?text=Image+Not+Found';
                     }}
                     onLoad={(e) => {
                       e.target.style.opacity = '1';
