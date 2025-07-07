@@ -26,8 +26,8 @@ function MessageBubble({ role, content, source, isError }) {
                     alt={imgMatch[2]}
                     className="max-w-full h-auto rounded-lg shadow-md mx-auto"
                     style={{
-                      maxHeight: '300px',
-                      maxWidth: '400px',
+                      maxHeight: '400px',
+                      maxWidth: '500px',
                       opacity: '0.8',
                       transition: 'opacity 0.3s ease'
                     }}
