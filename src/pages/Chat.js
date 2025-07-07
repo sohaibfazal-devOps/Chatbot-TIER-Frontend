@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { useChat } from '../contexts/ChatContext';
 import MessageBubble from '../components/MessageBubble';
 import ChatInput from '../components/ChatInput';
@@ -6,9 +6,13 @@ import LoadingIndicator from '../components/LoadingIndicator';
 
 function Chat() {
   const { messages, isLoading, error, sendMessage, addUserMessage, activeExpert, setActiveExpert } = useChat();
-  const currentMessages = messages[activeExpert] || [];
+
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
+
+  const currentMessages = useMemo(() => {
+     return messages[activeExpert] || [];
+  }, [messages, activeExpert])
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
