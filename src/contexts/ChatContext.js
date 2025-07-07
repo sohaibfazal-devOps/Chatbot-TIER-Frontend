@@ -21,17 +21,23 @@ const EXPERT_ENDPOINTS = {
 
 function chatReducer(state, action) {
   switch (action.type) {
-    case 'ADD_MESSAGE':
-  return {
-    ...state,
-    messages: {
-      ...state.messages,
-      [state.activeExpert]: [
-        ...state.messages[state.activeExpert],
-        action.payload
+    case 'ADD_MESSAGE':{
+      const expertKey = action.payload.expert || state.activeExpert;
+      return {
+        ...state,
+        messages: {
+           ...state.messages,
+      [expertKey]: [
+        ...state.messages[expertKey],
+        {
+          role: action.payload.role,
+          content: action.payload.content,
+          source: action.payload.source || null
+        }
       ],
-    },
-  };
+        }
+      };
+    }
 
     case 'SET_LOADING':
       return {
@@ -79,7 +85,8 @@ export function ChatProvider({ children }) {
     dispatch({ type: 'CLEAR_ERROR' });
 
     try {
-      const endpoint = EXPERT_ENDPOINTS[state.activeExpert];
+      const expert = state.activeExpert;
+      const endpoint = EXPERT_ENDPOINTS[expert];
       const response = await axios.post(endpoint, {
         query: message,
         return_scores: true
@@ -96,7 +103,8 @@ export function ChatProvider({ children }) {
           payload: {
             role: 'assistant',
             content: response.data.answer,
-            source: response.data.sources ? response.data.sources[0] : null
+            source: response.data.sources ? response.data.sources[0] : null,
+            expert: expert
           }
         });
       } else {
@@ -127,10 +135,11 @@ export function ChatProvider({ children }) {
       type: 'ADD_MESSAGE',
       payload: {
         role: 'user',
-        content: message
+        content: message,
+        expert: state.activeExpert
       }
     });
-  }, []);
+  }, [state.activeExpert]);
 
   const setActiveExpert = useCallback((expert) => {
     dispatch({ type: 'SET_ACTIVE_EXPERT', payload: expert });
