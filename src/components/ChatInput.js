@@ -21,7 +21,7 @@ function ChatInput({ onSubmit, disabled }) {
         rows="3"
         className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed resize-none"
         disabled={disabled}
-        style={{ minHeight: '80px' }}
+        style={{ height: '85px' }}
       />
       <button
         type="submit"
