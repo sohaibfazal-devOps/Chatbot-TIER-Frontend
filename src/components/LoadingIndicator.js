@@ -6,7 +6,7 @@ function LoadingIndicator() {
   const stages = useMemo(() => [
     { message: "Analyzing query", delay: 0 },
     { message: "Checking intent", delay: 3000 }, // 3 seconds
-    { message: "Fetching database", delay: 9000 }, // 9 seconds
+    { message: "Analysing knowledge base", delay: 9000 }, // 9 seconds
   ], []);
 
   useEffect(() => {

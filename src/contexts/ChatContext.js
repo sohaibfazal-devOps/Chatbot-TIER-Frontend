@@ -1,10 +1,13 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 import axios from 'axios';
 
 const ChatContext = createContext();
 
 const initialState = {
-  messages: [],
+  messages: {
+    treaty: [],
+    claims: []
+  },
   isLoading: false,
   error: null,
   activeExpert: 'treaty', // 'treaty' or 'claims'
@@ -19,10 +22,17 @@ const EXPERT_ENDPOINTS = {
 function chatReducer(state, action) {
   switch (action.type) {
     case 'ADD_MESSAGE':
-      return {
-        ...state,
-        messages: [...state.messages, action.payload],
-      };
+  return {
+    ...state,
+    messages: {
+      ...state.messages,
+      [state.activeExpert]: [
+        ...state.messages[state.activeExpert],
+        action.payload
+      ],
+    },
+  };
+
     case 'SET_LOADING':
       return {
         ...state,
@@ -42,8 +52,15 @@ function chatReducer(state, action) {
       return {
         ...state,
         activeExpert: action.payload,
-        messages: [], // Clear messages when switching experts
         error: null,
+      };
+    case 'CLEAR_ALL_MESSAGES':
+      return {
+      ...state,
+      messages: {
+        treaty: [],
+        claims: [],
+        },
       };
     default:
       return state;
@@ -52,6 +69,10 @@ function chatReducer(state, action) {
 
 export function ChatProvider({ children }) {
   const [state, dispatch] = useReducer(chatReducer, initialState);
+
+  useEffect(() => {
+  dispatch({type: 'CLEAR_ALL_MESSAGES',});
+      }, []);
 
   const sendMessage = useCallback(async (message) => {
     dispatch({ type: 'SET_LOADING', payload: true });
