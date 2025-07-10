@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 function MessageBubble({ role, content, source, isError }) {
+  const [previewSrc, setPreviewSrc] = useState(null);
+
   const formatMessage = (text) => {
     if (!text) return '';
 
@@ -26,14 +28,15 @@ function MessageBubble({ role, content, source, isError }) {
                     alt={imgMatch[2]}
                     className="max-w-full h-auto rounded-lg shadow-md mx-auto"
                     style={{
-                      maxHeight: '300px',
-                      maxWidth: '400px',
+                      maxHeight: '400px',
+                      maxWidth: '500px',
                       opacity: '0.8',
                       transition: 'opacity 0.3s ease'
                     }}
+                    onClick={() => setPreviewSrc(imgMatch[1])}
                     onError={(e) => {
                       console.error('Image failed to load:', imgMatch[1]);
-                      e.target.src = 'https://via.placeholder.com/150?text=Image+Not+Found';
+                      // e.target.src = 'https://via.placeholder.com/150?text=Image+Not+Found';
                     }}
                     onLoad={(e) => {
                       e.target.style.opacity = '1';
@@ -94,7 +97,21 @@ function MessageBubble({ role, content, source, isError }) {
   };
 
   return (
-    <div className={`flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
+    <>
+    {previewSrc && (
+  <div
+    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+    onClick={() => setPreviewSrc(null)}
+  >
+    <img
+      src={previewSrc}
+      alt="Preview"
+      className="max-h-[90%] max-w-[90%] rounded-lg shadow-lg"
+    />
+  </div>
+)}
+
+        <div className={`flex ${role === 'user' ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`max-w-[85%] rounded-lg px-4 py-2 ${
           role === 'user'
@@ -120,6 +137,8 @@ function MessageBubble({ role, content, source, isError }) {
         )}
       </div>
     </div>
+    </>
+
   );
 }
 

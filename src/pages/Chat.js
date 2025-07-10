@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { useChat } from '../contexts/ChatContext';
 import MessageBubble from '../components/MessageBubble';
 import ChatInput from '../components/ChatInput';
@@ -6,8 +6,13 @@ import LoadingIndicator from '../components/LoadingIndicator';
 
 function Chat() {
   const { messages, isLoading, error, sendMessage, addUserMessage, activeExpert, setActiveExpert } = useChat();
+
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
+
+  const currentMessages = useMemo(() => {
+     return messages[activeExpert] || [];
+  }, [messages, activeExpert])
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -17,7 +22,7 @@ function Chat() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [currentMessages]);
 
   const handleSubmit = async (message) => {
     if (!message.trim() || isLoading) return;
@@ -65,7 +70,7 @@ function Chat() {
           scrollBehavior: 'smooth'
         }}
       >
-        {messages.length === 0 && (
+        {currentMessages.length === 0 && (
           <div className="text-center text-gray-500 mt-8">
             <p className="text-lg font-medium mb-2">
               {activeExpert === 'treaty' ? 'Treaty Submission Expert' : 'Claims Expert'}
@@ -79,7 +84,7 @@ function Chat() {
           </div>
         )}
         
-        {messages.map((message, index) => (
+        {currentMessages.map((message, index) => (
           <MessageBubble
             key={index}
             role={message.role}
