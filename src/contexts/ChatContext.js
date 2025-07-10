@@ -15,8 +15,8 @@ const initialState = {
 
 // Define endpoints for different experts
 const EXPERT_ENDPOINTS = {
-  treaty: 'https://tr-assistant-api.mammoth-ai.dev//api/v1/query', // Treaty Submission Expert
-  claims: 'https://tr-assistant-api.mammoth-ai.dev//api/v1/chatbot-v4', // Claims Expert (you can change this endpoint)
+  treaty: 'https://tr-assistant-api.mammoth-ai.dev/api/v1/query', // Treaty Submission Expert
+  claims: 'https://tr-assistant-api.mammoth-ai.dev/api/v1/chatbot-v4', // Claims Expert (you can change this endpoint)
 };
 
 function chatReducer(state, action) {
