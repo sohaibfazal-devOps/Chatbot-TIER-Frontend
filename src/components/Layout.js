@@ -15,12 +15,10 @@ function Layout({ children }) {
       {/* Header */}
       <header className="bg-white shadow-sm fixed w-full top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-2xl font-bold text-gray-800">Treaty Assistant</h1>
-              </div>
-              <nav className="ml-6 flex space-x-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-6">
+              <h1 className="text-2xl font-bold text-gray-800">Treaty Assistant</h1>
+              <nav className="flex space-x-8">
                 {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
@@ -40,11 +38,21 @@ function Layout({ children }) {
                 })}
               </nav>
             </div>
+            <div className=" h-auto w-auto flex items-center justify-center">
+              <button
+                onClick={() => {
+                  sessionStorage.removeItem('auth_user');
+                  window.location.reload();
+                }}
+                className="h-[32px] w-[80px] bg-blue-500 text-sm font-medium text-white hover:bg-blue-700 rounded-md"
+              >
+                Logout
+              </button>
+            </div>
+
           </div>
         </div>
       </header>
-
-      {/* Main content */}
       <main className="max-w-7xl mx-auto pt-20 pb-6 px-4 sm:px-6 lg:px-8">
         {children}
       </main>
@@ -52,4 +60,4 @@ function Layout({ children }) {
   );
 }
 
-export default Layout; 
+export default Layout;
